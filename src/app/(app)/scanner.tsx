@@ -31,16 +31,16 @@ export default function ScannerScreen() {
   }, []);
 
   const barcodeScanner = useBarcodeScanner({ barcodeFormats: ['all-formats'] });
-  const { scanCodes } = barcodeScanner;
 
   const frameOutput = useFrameOutput({
+    pixelFormat: 'yuv',
     onFrame(frame) {
       'worklet';
       if (isScanning.get()) {
         frame.dispose();
         return;
       }
-      const barcodes = scanCodes(frame);
+      const barcodes = barcodeScanner.scanCodes(frame);
       frame.dispose();
       if (barcodes.length > 0) {
         const value = barcodes[0].displayValue ?? barcodes[0].rawValue;
