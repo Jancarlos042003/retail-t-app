@@ -29,7 +29,7 @@ interface SaleState {
 }
 
 const getSubtotal = (product: ProductBarcodeType, quantity: number) =>
-  product.selling_price * quantity;
+  (product.selling_price ?? 0) * quantity;
 
 export const useSaleStore = create<SaleState>((set) => ({
   items: [],

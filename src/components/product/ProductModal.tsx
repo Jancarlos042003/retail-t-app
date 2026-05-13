@@ -45,7 +45,9 @@ export function ProductModal({ product, visible, onClose }: ProductModalProps) {
 
           <View className="gap-1 mb-6">
             <Text className="text-lg font-semibold text-gray-900 dark:text-white">{product.name}</Text>
-            <Text className="text-2xl font-bold text-blue-600">{formatPrice(product.selling_price)}</Text>
+            <Text className={`text-2xl font-bold ${product.selling_price != null ? 'text-blue-600' : 'text-gray-400 dark:text-gray-500'}`}>
+              {formatPrice(product.selling_price)}
+            </Text>
             <Text className="text-gray-500 dark:text-gray-400">
               Stock disponible: {product.stock} unidades
             </Text>
@@ -70,18 +72,18 @@ export function ProductModal({ product, visible, onClose }: ProductModalProps) {
 
             <Pressable
               onPress={handleAdd}
-              disabled={product.stock === 0}
+              disabled={product.stock === 0 || product.selling_price == null}
               className={`flex-1 py-4 rounded-2xl items-center ${
-                product.stock === 0 ? 'bg-gray-200 dark:bg-zinc-700' : 'bg-blue-500'
+                product.stock === 0 || product.selling_price == null ? 'bg-gray-200 dark:bg-zinc-700' : 'bg-blue-500'
               }`}
               style={{ borderCurve: 'continuous' }}
             >
               <Text
                 className={`font-semibold ${
-                  product.stock === 0 ? 'text-gray-400 dark:text-zinc-500' : 'text-white'
+                  product.stock === 0 || product.selling_price == null ? 'text-gray-400 dark:text-zinc-500' : 'text-white'
                 }`}
               >
-                {product.stock === 0 ? 'Sin stock' : 'Agregar a venta'}
+                {product.stock === 0 ? 'Sin stock' : product.selling_price == null ? 'Sin precio' : 'Agregar a venta'}
               </Text>
             </Pressable>
           </View>

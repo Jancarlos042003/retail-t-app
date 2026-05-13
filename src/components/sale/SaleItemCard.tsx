@@ -9,7 +9,7 @@ type SaleItemCardProps = {
   productId: string;
   productName: string;
   imageUrl: string | null | undefined;
-  sellingPrice: number;
+  sellingPrice: number | null | undefined;
   quantity: number;
   subtotal: number;
 };
