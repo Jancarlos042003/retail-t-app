@@ -1,4 +1,5 @@
-import { Pressable, SafeAreaView, Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 
 import { CheckCircleIcon } from '@/components/ui/icons';
@@ -19,31 +20,31 @@ export default function SaleSuccessScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-50">
+    <SafeAreaView className="flex-1 bg-gray-50 dark:bg-black">
       <View className="flex-1 justify-center items-center px-6 gap-6">
         <CheckCircleIcon size={96} color="#22C55E" />
 
         <View className="items-center gap-2">
-          <Text className="text-2xl font-bold text-gray-900">¡Venta registrada!</Text>
-          <Text className="text-gray-500 text-center">
+          <Text className="text-2xl font-bold text-gray-900 dark:text-white">¡Venta registrada!</Text>
+          <Text className="text-gray-500 dark:text-gray-400 text-center">
             La venta fue procesada correctamente
           </Text>
         </View>
 
         {lastSale ? (
           <View
-            className="w-full bg-white rounded-3xl p-6 gap-3"
+            className="w-full bg-white dark:bg-zinc-900 rounded-3xl p-6 gap-3"
             style={{ borderCurve: 'continuous', boxShadow: '0 2px 12px rgba(0,0,0,0.08)' }}
           >
             <View className="flex-row justify-between">
-              <Text className="text-gray-500">Método de pago</Text>
-              <Text className="font-semibold text-gray-900">{lastSale.paymentMethodName}</Text>
+              <Text className="text-gray-500 dark:text-gray-400">Método de pago</Text>
+              <Text className="font-semibold text-gray-900 dark:text-white">{lastSale.paymentMethodName}</Text>
             </View>
 
-            <View className="h-px bg-gray-100" />
+            <View className="h-px bg-gray-100 dark:bg-zinc-800" />
 
             <View className="flex-row justify-between items-center">
-              <Text className="text-gray-700 font-medium">Total cobrado</Text>
+              <Text className="text-gray-700 dark:text-gray-300 font-medium">Total cobrado</Text>
               <Text className="text-blue-600 font-bold text-xl">
                 {formatPrice(lastSale.total)}
               </Text>
@@ -62,10 +63,10 @@ export default function SaleSuccessScreen() {
 
           <Pressable
             onPress={handleGoHome}
-            className="w-full py-4 bg-gray-100 rounded-2xl items-center"
+            className="w-full py-4 bg-gray-100 dark:bg-zinc-800 rounded-2xl items-center"
             style={{ borderCurve: 'continuous' }}
           >
-            <Text className="text-gray-700 font-semibold">Ir al inicio</Text>
+            <Text className="text-gray-700 dark:text-gray-300 font-semibold">Ir al inicio</Text>
           </Pressable>
         </View>
       </View>

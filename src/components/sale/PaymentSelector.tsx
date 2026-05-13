@@ -25,10 +25,10 @@ export function PaymentSelector({
 
   return (
     <View
-      className="bg-white rounded-2xl p-4 gap-4"
+      className="bg-white dark:bg-zinc-900 rounded-2xl p-4 gap-4"
       style={{ borderCurve: 'continuous', boxShadow: '0 1px 4px rgba(0,0,0,0.07)' }}
     >
-      <Text className="font-semibold text-gray-900">Método de pago</Text>
+      <Text className="font-semibold text-gray-900 dark:text-white">Método de pago</Text>
 
       <View className="flex-row gap-2 flex-wrap">
         {methods.map((method) => {
@@ -40,12 +40,12 @@ export function PaymentSelector({
               className={`px-4 py-2 rounded-xl border ${
                 isSelected
                   ? 'bg-blue-500 border-blue-500'
-                  : 'bg-white border-gray-200'
+                  : 'bg-white dark:bg-zinc-800 border-gray-200 dark:border-zinc-700'
               }`}
               style={{ borderCurve: 'continuous' }}
             >
               <Text
-                className={`font-medium ${isSelected ? 'text-white' : 'text-gray-700'}`}
+                className={`font-medium ${isSelected ? 'text-white' : 'text-gray-700 dark:text-gray-300'}`}
               >
                 {method.name}
               </Text>
@@ -57,22 +57,22 @@ export function PaymentSelector({
       {showChangeFields ? (
         <View className="gap-3">
           <View className="gap-1">
-            <Text className="text-gray-500 text-sm">Monto recibido</Text>
+            <Text className="text-gray-500 dark:text-gray-400 text-sm">Monto recibido</Text>
             <TextInput
               value={amountPaid > 0 ? String(amountPaid) : ''}
               onChangeText={(text) => onAmountPaidChange(parseFloat(text) || 0)}
               keyboardType="decimal-pad"
               placeholder="0.00"
               placeholderTextColor="#9CA3AF"
-              className="border border-gray-200 rounded-xl px-4 py-3 text-gray-900 text-base"
+              className="border border-gray-200 dark:border-zinc-700 rounded-xl px-4 py-3 text-gray-900 dark:text-white text-base"
               style={{ borderCurve: 'continuous' }}
             />
           </View>
 
           {change !== null ? (
-            <View className="flex-row justify-between items-center bg-green-50 rounded-xl px-4 py-3">
-              <Text className="text-green-700 font-medium">Vuelto</Text>
-              <Text className="text-green-700 font-bold text-lg">
+            <View className="flex-row justify-between items-center bg-green-50 dark:bg-green-950 rounded-xl px-4 py-3">
+              <Text className="text-green-700 dark:text-green-400 font-medium">Vuelto</Text>
+              <Text className="text-green-700 dark:text-green-400 font-bold text-lg">
                 {formatPrice(change)}
               </Text>
             </View>

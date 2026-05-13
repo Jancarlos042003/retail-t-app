@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { ActivityIndicator, FlatList, Pressable, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 
 import { PaymentSelector } from '@/components/sale/PaymentSelector';
@@ -13,14 +14,14 @@ import { useSaleStore, SaleItem } from '@/store/saleStore';
 import { PaymentMethodType } from '@/types';
 
 function SaleListHeader() {
-  return <Text className="text-2xl font-bold text-gray-900 mb-4">Nueva Venta</Text>;
+  return <Text className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Nueva Venta</Text>;
 }
 
 function SaleListEmpty() {
   return (
     <View className="items-center py-16 gap-3">
-      <Text className="text-gray-400 text-lg">El carrito está vacío</Text>
-      <Text className="text-gray-400 text-sm text-center">
+      <Text className="text-gray-400 dark:text-gray-500 text-lg">El carrito está vacío</Text>
+      <Text className="text-gray-400 dark:text-gray-500 text-sm text-center">
         Escanea productos para agregarlos a la venta
       </Text>
     </View>
@@ -70,8 +71,8 @@ function SaleListFooter({
       )}
 
       {error ? (
-        <View className="bg-red-50 border border-red-200 rounded-xl px-4 py-3">
-          <Text className="text-red-700 text-sm text-center">
+        <View className="bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-900 rounded-xl px-4 py-3">
+          <Text className="text-red-700 dark:text-red-400 text-sm text-center">
             Error al registrar la venta. Intenta de nuevo.
           </Text>
         </View>
@@ -97,6 +98,7 @@ const ItemSeparator = () => <View className="h-3" />;
 
 export default function NewSaleScreen() {
   const { replace } = useRouter();
+  const { bottom } = useSafeAreaInsets();
   const { items, paymentMethod, amountPaid, setPaymentMethod, setAmountPaid, clearSale } =
     useSaleStore();
 
@@ -145,7 +147,7 @@ export default function NewSaleScreen() {
   };
 
   return (
-    <View className="flex-1 bg-gray-50">
+    <View className="flex-1 bg-gray-50 dark:bg-black">
       <FlatList
         data={items}
         renderItem={renderItem}
@@ -171,22 +173,22 @@ export default function NewSaleScreen() {
       />
 
       <View
-        className="flex-row gap-3 px-5 py-4 bg-white border-t border-gray-100"
-        style={{ boxShadow: '0 -2px 12px rgba(0,0,0,0.06)' }}
+        className="flex-row gap-3 px-5 pt-4 bg-white dark:bg-zinc-900 border-t border-gray-100 dark:border-zinc-800"
+        style={{ paddingBottom: Math.max(bottom, 16), boxShadow: '0 -2px 12px rgba(0,0,0,0.06)' }}
       >
         <Pressable
           onPress={handleCancelSale}
-          className="flex-1 py-4 bg-gray-100 rounded-2xl items-center"
+          className="flex-1 py-4 bg-gray-100 dark:bg-zinc-800 rounded-2xl items-center"
           style={{ borderCurve: 'continuous' }}
         >
-          <Text className="font-semibold text-gray-700">Cancelar</Text>
+          <Text className="font-semibold text-gray-700 dark:text-gray-300">Cancelar</Text>
         </Pressable>
 
         <Pressable
           onPress={handleRegisterSale}
           disabled={!isValid || isPending}
           className={`flex-1 py-4 rounded-2xl items-center ${
-            isValid && !isPending ? 'bg-blue-500' : 'bg-gray-200'
+            isValid && !isPending ? 'bg-blue-500' : 'bg-gray-200 dark:bg-zinc-700'
           }`}
           style={{ borderCurve: 'continuous' }}
         >
@@ -194,7 +196,7 @@ export default function NewSaleScreen() {
             <ActivityIndicator size="small" color="#fff" />
           ) : (
             <Text
-              className={`font-semibold ${isValid ? 'text-white' : 'text-gray-400'}`}
+              className={`font-semibold ${isValid ? 'text-white' : 'text-gray-400 dark:text-zinc-500'}`}
             >
               Realizar Venta
             </Text>

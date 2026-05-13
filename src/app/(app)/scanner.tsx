@@ -1,19 +1,19 @@
 import { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Linking, Pressable, StyleSheet, Text, View } from 'react-native';
 import { runOnJS, useSharedValue } from 'react-native-reanimated';
 import { Camera, useCameraDevice, useCameraPermission, useFrameOutput } from 'react-native-vision-camera';
 import { useBarcodeScanner } from 'react-native-vision-camera-barcode-scanner';
-import { useFocusEffect } from 'expo-router';
+import { useFocusEffect, useRouter } from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
 
 import { ProductModal } from '@/components/product/ProductModal';
 import { ScannerOverlay } from '@/components/scanner/ScannerOverlay';
 import { BackIcon } from '@/components/ui/icons';
 import { useProduct } from '@/hooks/useProduct';
-import { useRouter } from 'expo-router';
 
 export default function ScannerScreen() {
   const { back } = useRouter();
-  const { hasPermission, requestPermission } = useCameraPermission();
+  const { hasPermission, canRequestPermission, requestPermission } = useCameraPermission();
   const device = useCameraDevice('back');
 
   const [barcode, setBarcode] = useState<string | null>(null);
@@ -69,17 +69,25 @@ export default function ScannerScreen() {
   }, [isScanning]);
 
   if (!hasPermission) {
+    const denied = !canRequestPermission;
     return (
       <View className="flex-1 bg-gray-900 justify-center items-center gap-4 px-8">
         <Text className="text-white text-lg font-semibold text-center">
           Se necesita permiso de cámara
         </Text>
+        {denied ? (
+          <Text className="text-white/60 text-sm text-center">
+            El permiso fue denegado. Actívalo desde la configuración del sistema.
+          </Text>
+        ) : null}
         <Pressable
-          onPress={requestPermission}
+          onPress={denied ? () => Linking.openSettings() : requestPermission}
           className="bg-blue-500 px-8 py-4 rounded-2xl"
           style={{ borderCurve: 'continuous' }}
         >
-          <Text className="text-white font-semibold">Conceder permiso</Text>
+          <Text className="text-white font-semibold">
+            {denied ? 'Abrir configuración' : 'Conceder permiso'}
+          </Text>
         </Pressable>
       </View>
     );
@@ -99,6 +107,7 @@ export default function ScannerScreen() {
 
   return (
     <View className="flex-1 bg-black">
+      <StatusBar style="light" />
       <Camera
         style={StyleSheet.absoluteFill}
         device={device}
