@@ -1,5 +1,7 @@
-import { Text } from "react-native";
+import { Redirect } from 'expo-router';
 
-export default function HomeScreen() {
-  return <Text>Hola Mundo</Text>;
+import { Routes } from '@/constants/routes';
+
+export default function Index() {
+  return <Redirect href={Routes.home} />;
 }
