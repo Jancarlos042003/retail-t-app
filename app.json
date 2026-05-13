@@ -9,7 +9,10 @@
     "userInterfaceStyle": "automatic",
     "ios": {
       "icon": "./assets/expo.icon",
-      "bundleIdentifier": "com.jancarlos.retailtapp"
+      "bundleIdentifier": "com.jancarlos.retailtapp",
+      "infoPlist": {
+        "NSCameraUsageDescription": "Se necesita acceso a la cámara para escanear productos."
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -19,7 +22,8 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
-      "package": "com.jancarlos.retailtapp"
+      "package": "com.jancarlos.retailtapp",
+      "permissions": ["android.permission.CAMERA"]
     },
     "web": {
       "output": "static",
