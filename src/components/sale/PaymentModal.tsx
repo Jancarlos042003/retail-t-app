@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Modal, Pressable, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, Text, View } from 'react-native';
 
+import { BottomSheetModal } from '@/components/ui/BottomSheetModal';
 import { usePaymentMethods } from '@/hooks/usePaymentMethods';
 import { isCashMethod } from '@/lib/payment';
 import { PaymentMethodType } from '@/types';
@@ -79,68 +80,55 @@ export function PaymentModal({
 
   return (
     <>
-      <Modal
-        visible={visible && !showChangeCalc}
-        transparent
-        animationType="slide"
-        onRequestClose={onClose}
-      >
-        <View className="flex-1 justify-end bg-black/50">
-          <View
-            className="bg-white dark:bg-zinc-900 rounded-t-3xl px-6 pt-3 pb-10 gap-5"
+      <BottomSheetModal visible={visible && !showChangeCalc} onRequestClose={onClose}>
+        <Text className="text-xl font-bold text-gray-900 dark:text-white">Método de pago</Text>
+
+        {isLoading ? (
+          <ActivityIndicator className="py-4" />
+        ) : (
+          <View className="gap-3">
+            {(methods ?? []).map((method) => (
+              <PaymentMethodOption
+                key={method.id}
+                method={method}
+                isSelected={selectedMethod?.id === method.id}
+                onSelect={() => setSelectedMethod(method)}
+              />
+            ))}
+          </View>
+        )}
+
+        {isCash ? (
+          <Pressable
+            onPress={() => setShowChangeCalc(true)}
+            className="py-4 bg-blue-500 rounded-2xl items-center"
             style={{ borderCurve: 'continuous' }}
           >
-            <View className="w-10 h-1 bg-black/10 dark:bg-white/20 rounded-full self-center mb-1" />
-            <Text className="text-xl font-bold text-gray-900 dark:text-white">Método de pago</Text>
-
-            {isLoading ? (
-              <ActivityIndicator className="py-4" />
+            <Text className="text-white font-semibold">Continuar</Text>
+          </Pressable>
+        ) : (
+          <Pressable
+            onPress={handleTerminar}
+            disabled={!selectedMethod || isPending}
+            className={`py-4 rounded-2xl items-center ${
+              selectedMethod && !isPending ? 'bg-blue-500' : 'bg-gray-200 dark:bg-zinc-700'
+            }`}
+            style={{ borderCurve: 'continuous' }}
+          >
+            {isPending ? (
+              <ActivityIndicator size="small" color="#fff" />
             ) : (
-              <View className="gap-3">
-                {(methods ?? []).map((method) => (
-                  <PaymentMethodOption
-                    key={method.id}
-                    method={method}
-                    isSelected={selectedMethod?.id === method.id}
-                    onSelect={() => setSelectedMethod(method)}
-                  />
-                ))}
-              </View>
-            )}
-
-            {isCash ? (
-              <Pressable
-                onPress={() => setShowChangeCalc(true)}
-                className="py-4 bg-blue-500 rounded-2xl items-center"
-                style={{ borderCurve: 'continuous' }}
-              >
-                <Text className="text-white font-semibold">Continuar</Text>
-              </Pressable>
-            ) : (
-              <Pressable
-                onPress={handleTerminar}
-                disabled={!selectedMethod || isPending}
-                className={`py-4 rounded-2xl items-center ${
-                  selectedMethod && !isPending ? 'bg-blue-500' : 'bg-gray-200 dark:bg-zinc-700'
+              <Text
+                className={`font-semibold ${
+                  selectedMethod ? 'text-white' : 'text-gray-400 dark:text-zinc-500'
                 }`}
-                style={{ borderCurve: 'continuous' }}
               >
-                {isPending ? (
-                  <ActivityIndicator size="small" color="#fff" />
-                ) : (
-                  <Text
-                    className={`font-semibold ${
-                      selectedMethod ? 'text-white' : 'text-gray-400 dark:text-zinc-500'
-                    }`}
-                  >
-                    Terminar
-                  </Text>
-                )}
-              </Pressable>
+                Terminar
+              </Text>
             )}
-          </View>
-        </View>
-      </Modal>
+          </Pressable>
+        )}
+      </BottomSheetModal>
 
       <ChangeCalculatorModal
         visible={showChangeCalc}
