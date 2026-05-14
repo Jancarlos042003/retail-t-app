@@ -1,22 +1,38 @@
 import { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 import { runOnJS, useSharedValue } from 'react-native-reanimated';
-import { Camera, useCameraDevice, useCameraPermission, useFrameOutput } from 'react-native-vision-camera';
+import {
+  Camera,
+  useCameraDevice,
+  useCameraPermission,
+  useFrameOutput,
+} from 'react-native-vision-camera';
 import { useBarcodeScanner } from 'react-native-vision-camera-barcode-scanner';
-import { useFocusEffect, useRouter } from 'expo-router';
+import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 
 import { ProductModal } from '@/components/product/ProductModal';
+import { CancelSaleModal } from '@/components/sale/CancelSaleModal';
 import { ScannerOverlay } from '@/components/scanner/ScannerOverlay';
+import { ScannerSaleControls } from '@/components/scanner/ScannerSaleControls';
 import { BackIcon } from '@/components/ui/icons';
+import { Routes } from '@/constants/routes';
 import { useProduct } from '@/hooks/useProduct';
+import { useSaleStore } from '@/store/saleStore';
 
 export default function ScannerScreen() {
-  const { back } = useRouter();
+  const { back, replace } = useRouter();
+  const { mode } = useLocalSearchParams<{ mode?: string }>();
+  const isSaleMode = mode === 'sale';
+
   const { hasPermission } = useCameraPermission();
   const device = useCameraDevice('back');
 
+  const { items, addProduct, clearSale } = useSaleStore();
+  const hasItems = items.length > 0;
+
   const [barcode, setBarcode] = useState<string | null>(null);
+  const [showCancelModal, setShowCancelModal] = useState(false);
   const isScanning = useSharedValue(false);
 
   useFocusEffect(
@@ -54,6 +70,11 @@ export default function ScannerScreen() {
 
   const { data: product, isLoading, isError } = useProduct(barcode);
 
+  const handleCloseModal = useCallback(() => {
+    setBarcode(null);
+    isScanning.set(false);
+  }, [isScanning]);
+
   useEffect(() => {
     if (!isError) return;
     const timer = setTimeout(() => {
@@ -63,10 +84,25 @@ export default function ScannerScreen() {
     return () => clearTimeout(timer);
   }, [isError, isScanning]);
 
-  const handleCloseModal = useCallback(() => {
-    setBarcode(null);
-    isScanning.set(false);
-  }, [isScanning]);
+  useEffect(() => {
+    if (!isSaleMode || !product) return;
+    addProduct(product);
+    handleCloseModal();
+  }, [product, isSaleMode, addProduct, handleCloseModal]);
+
+  const handleBackPress = () => {
+    if (isSaleMode && hasItems) {
+      setShowCancelModal(true);
+    } else {
+      back();
+    }
+  };
+
+  const handleConfirmCancel = () => {
+    clearSale();
+    setShowCancelModal(false);
+    replace(Routes.home);
+  };
 
   if (!device || !hasPermission) {
     return (
@@ -77,7 +113,7 @@ export default function ScannerScreen() {
     );
   }
 
-  const modalVisible = !!product;
+  const modalVisible = !isSaleMode && !!product;
   const errorMessage = isError ? 'Producto no encontrado' : undefined;
 
   return (
@@ -93,13 +129,28 @@ export default function ScannerScreen() {
       <ScannerOverlay isLoading={!!isLoading && barcode !== null} errorMessage={errorMessage} />
 
       <Pressable
-        onPress={back}
+        onPress={handleBackPress}
         className="absolute top-12 left-4 w-10 h-10 bg-black/40 rounded-full items-center justify-center"
       >
         <BackIcon size={22} color="#fff" />
       </Pressable>
 
+      {isSaleMode ? (
+        <ScannerSaleControls
+          itemCount={items.length}
+          onCancel={() => setShowCancelModal(true)}
+          onReset={handleCloseModal}
+          onGoToCart={back}
+        />
+      ) : null}
+
       <ProductModal product={product ?? null} visible={modalVisible} onClose={handleCloseModal} />
+
+      <CancelSaleModal
+        visible={showCancelModal}
+        onCancel={() => setShowCancelModal(false)}
+        onConfirm={handleConfirmCancel}
+      />
     </View>
   );
 }
