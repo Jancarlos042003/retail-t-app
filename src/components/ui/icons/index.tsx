@@ -44,3 +44,7 @@ export function AlertIcon({ size = 24, color = '#000' }: IconProps) {
 export function RefreshIcon({ size = 24, color = '#000' }: IconProps) {
   return <Ionicons name="refresh-outline" size={size} color={color} />;
 }
+
+export function SearchIcon({ size = 24, color = '#000' }: IconProps) {
+  return <Ionicons name="search-outline" size={size} color={color} />;
+}

@@ -20,7 +20,7 @@ import { CancelSaleModal } from "@/components/sale/CancelSaleModal";
 import { ScannerOverlay } from "@/components/scanner/ScannerOverlay";
 import { ScannerSaleControls } from "@/components/scanner/ScannerSaleControls";
 import { ScannerToast } from "@/components/scanner/ScannerToast";
-import { BackIcon } from "@/components/ui/icons";
+import { BackIcon, CartIcon, SearchIcon } from "@/components/ui/icons";
 import { Routes } from "@/constants/routes";
 import { useProduct } from "@/hooks/useProduct";
 import { useSaleStore } from "@/store/saleStore";
@@ -31,7 +31,7 @@ const BARCODE_GONE_MS = 1500;
 export default function ScannerScreen() {
   const { back, replace } = useRouter();
   const { mode } = useLocalSearchParams<{ mode?: string }>();
-  const isSaleMode = mode === "sale";
+  const [isSaleMode, setIsSaleMode] = useState(mode === "sale");
 
   const { hasPermission } = useCameraPermission();
   const device = useCameraDevice("back");
@@ -140,6 +140,11 @@ export default function ScannerScreen() {
     }, TOAST_DISMISS_MS);
   }, [product, barcode, isSaleMode, addProduct]);
 
+  const handleToggleMode = useCallback(() => {
+    handleCloseModal();
+    setIsSaleMode((prev) => !prev);
+  }, [handleCloseModal]);
+
   const handleBackPress = () => {
     if (isSaleMode && hasItems) {
       setShowCancelModal(true);
@@ -186,6 +191,16 @@ export default function ScannerScreen() {
         className="absolute top-12 left-4 w-10 h-10 bg-black/40 rounded-full items-center justify-center"
       >
         <BackIcon size={22} color="#fff" />
+      </Pressable>
+
+      <Pressable
+        onPress={handleToggleMode}
+        className="absolute top-12 right-4 w-10 h-10 bg-black/40 rounded-full items-center justify-center"
+      >
+        {isSaleMode
+          ? <SearchIcon size={20} color="#fff" />
+          : <CartIcon size={20} color="#fff" />
+        }
       </Pressable>
 
       {isSaleMode ? (
