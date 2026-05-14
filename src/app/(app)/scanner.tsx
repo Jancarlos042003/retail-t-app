@@ -196,7 +196,7 @@ export default function ScannerScreen() {
       <ScannerControls
         isSaleMode={isSaleMode}
         itemCount={items.length}
-        onCancel={() => setShowCancelModal(true)}
+        onCancel={() => hasItems ? setShowCancelModal(true) : back()}
         onToggleMode={handleToggleMode}
         onGoToCart={back}
       />
