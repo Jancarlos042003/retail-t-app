@@ -25,7 +25,8 @@ import { Routes } from "@/constants/routes";
 import { useProduct } from "@/hooks/useProduct";
 import { useSaleStore } from "@/store/saleStore";
 
-const SALE_SCAN_COOLDOWN_MS = 800;
+const TOAST_DISMISS_MS = 2000;
+const BARCODE_GONE_MS = 1500;
 
 export default function ScannerScreen() {
   const { back, replace } = useRouter();
@@ -43,6 +44,8 @@ export default function ScannerScreen() {
   const [isScannerActive, setIsScannerActive] = useState(true);
   const [toastName, setToastName] = useState<string | null>(null);
   const isHandlingScanRef = useRef(false);
+  const processingBarcodeRef = useRef<string | null>(null);
+  const lastBarcodeSeenRef = useRef<number>(0);
   const cooldownTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const clearCooldown = useCallback(() => {
@@ -58,22 +61,42 @@ export default function ScannerScreen() {
       setIsScannerActive(true);
       setToastName(null);
       isHandlingScanRef.current = false;
+      processingBarcodeRef.current = null;
+      lastBarcodeSeenRef.current = 0;
       return clearCooldown;
     }, [clearCooldown]),
   );
 
-  const handleBarcode = useCallback((code: string) => {
-    isHandlingScanRef.current = true;
-    setBarcode(code);
-    setIsScannerActive(false);
-  }, []);
+  const handleBarcode = useCallback(
+    (code: string) => {
+      setBarcode(code);
+      if (!isSaleMode) {
+        isHandlingScanRef.current = true;
+        setIsScannerActive(false);
+      }
+    },
+    [isSaleMode],
+  );
 
   const scannerOutput = useBarcodeScannerOutput({
     barcodeFormats: ["all-formats"],
     onBarcodeScanned(barcodes) {
-      if (isHandlingScanRef.current) return;
       const value = barcodes[0]?.displayValue ?? barcodes[0]?.rawValue;
       if (!value) return;
+
+      if (isSaleMode) {
+        const now = Date.now();
+        if (processingBarcodeRef.current === value) {
+          const elapsed = now - lastBarcodeSeenRef.current;
+          lastBarcodeSeenRef.current = now;
+          if (elapsed < BARCODE_GONE_MS) return;
+        }
+        processingBarcodeRef.current = value;
+        lastBarcodeSeenRef.current = now;
+      } else {
+        if (isHandlingScanRef.current) return;
+      }
+
       handleBarcode(value);
     },
     onError(error) {
@@ -89,6 +112,8 @@ export default function ScannerScreen() {
     setIsScannerActive(true);
     setToastName(null);
     isHandlingScanRef.current = false;
+    processingBarcodeRef.current = null;
+    lastBarcodeSeenRef.current = 0;
   }, [clearCooldown]);
 
   useEffect(() => {
@@ -97,6 +122,8 @@ export default function ScannerScreen() {
       setBarcode(null);
       setIsScannerActive(true);
       isHandlingScanRef.current = false;
+      processingBarcodeRef.current = null;
+      lastBarcodeSeenRef.current = 0;
     }, 2000);
     return () => clearTimeout(timer);
   }, [isError]);
@@ -107,12 +134,10 @@ export default function ScannerScreen() {
     addProduct(product);
     setToastName(product.name);
     setBarcode(null);
-    isHandlingScanRef.current = false;
     cooldownTimerRef.current = setTimeout(() => {
-      setIsScannerActive(true);
       setToastName(null);
       cooldownTimerRef.current = null;
-    }, SALE_SCAN_COOLDOWN_MS);
+    }, TOAST_DISMISS_MS);
   }, [product, barcode, isSaleMode, addProduct]);
 
   const handleBackPress = () => {
@@ -147,7 +172,7 @@ export default function ScannerScreen() {
       <Camera
         style={StyleSheet.absoluteFill}
         device={device}
-        isActive={isScannerActive && !modalVisible}
+        isActive={isSaleMode ? true : isScannerActive && !modalVisible}
         outputs={[scannerOutput]}
       />
 
@@ -167,6 +192,7 @@ export default function ScannerScreen() {
         <ScannerSaleControls
           itemCount={items.length}
           onCancel={() => setShowCancelModal(true)}
+          onReset={handleCloseModal}
           onGoToCart={back}
         />
       ) : null}

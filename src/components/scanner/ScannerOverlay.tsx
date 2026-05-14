@@ -1,4 +1,5 @@
 import { ActivityIndicator, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AlertIcon } from '@/components/ui/icons';
 
@@ -8,38 +9,30 @@ type ScannerOverlayProps = {
 };
 
 export function ScannerOverlay({ isLoading, errorMessage }: ScannerOverlayProps) {
+  const { bottom } = useSafeAreaInsets();
+
   return (
-    <View className="absolute inset-0">
-      <View className="flex-1 bg-black/60" />
-
-      <View className="flex-row" style={{ height: 260 }}>
-        <View className="flex-1 bg-black/60" />
-
-        <View
-          className="w-64 border-2 border-blue-400 rounded-2xl overflow-hidden justify-center items-center"
-          style={{ borderCurve: 'continuous' }}
-        >
-          {isLoading ? (
-            <ActivityIndicator size="large" color="#60A5FA" />
-          ) : (
-            <View className="absolute w-full h-px bg-blue-400 opacity-80" />
-          )}
+    <View className="absolute inset-0 items-center justify-center">
+      {isLoading ? (
+        <View className="bg-black/50 rounded-full p-4">
+          <ActivityIndicator size="large" color="#fff" />
         </View>
+      ) : null}
 
-        <View className="flex-1 bg-black/60" />
-      </View>
-
-      <View className="flex-1 bg-black/60 items-center pt-6 gap-2">
+      <View
+        className="absolute left-4 right-4 bg-black/55 rounded-2xl px-4 py-3 flex-row items-center gap-3"
+        style={{ bottom: bottom + 100, borderCurve: 'continuous' }}
+      >
         {errorMessage ? (
           <>
-            <AlertIcon size={28} color="#F87171" />
-            <Text className="text-red-400 text-sm font-medium text-center px-8">
+            <AlertIcon size={20} color="#F87171" />
+            <Text className="text-red-400 text-sm font-medium flex-1">
               {errorMessage}
             </Text>
           </>
         ) : (
-          <Text className="text-white/70 text-sm text-center px-8">
-            Apunta el código de barras al visor
+          <Text className="text-white/60 text-sm text-center flex-1">
+            Apunta la cámara al código de barras
           </Text>
         )}
       </View>

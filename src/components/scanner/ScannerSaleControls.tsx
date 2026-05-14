@@ -1,11 +1,12 @@
 import { Pressable, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { CartIcon, CloseIcon } from '@/components/ui/icons';
+import { CartIcon, CloseIcon, RefreshIcon } from '@/components/ui/icons';
 
 type ScannerSaleControlsProps = {
   itemCount: number;
   onCancel: () => void;
+  onReset: () => void;
   onGoToCart: () => void;
 };
 
@@ -28,6 +29,7 @@ function ControlButton({ onPress, children }: ControlButtonProps) {
 export function ScannerSaleControls({
   itemCount,
   onCancel,
+  onReset,
   onGoToCart,
 }: ScannerSaleControlsProps) {
   const { bottom } = useSafeAreaInsets();
@@ -39,6 +41,10 @@ export function ScannerSaleControls({
     >
       <ControlButton onPress={onCancel}>
         <CloseIcon size={26} color="#fff" />
+      </ControlButton>
+
+      <ControlButton onPress={onReset}>
+        <RefreshIcon size={26} color="#fff" />
       </ControlButton>
 
       <View>
