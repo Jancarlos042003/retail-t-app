@@ -1,94 +1,119 @@
-import { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
-import { runOnJS, useSharedValue } from 'react-native-reanimated';
+import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
+import { StatusBar } from "expo-status-bar";
+import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  ActivityIndicator,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import {
   Camera,
   useCameraDevice,
   useCameraPermission,
-  useFrameOutput,
-} from 'react-native-vision-camera';
-import { useBarcodeScanner } from 'react-native-vision-camera-barcode-scanner';
-import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
+} from "react-native-vision-camera";
+import { useBarcodeScannerOutput } from "react-native-vision-camera-barcode-scanner";
 
-import { ProductModal } from '@/components/product/ProductModal';
-import { CancelSaleModal } from '@/components/sale/CancelSaleModal';
-import { ScannerOverlay } from '@/components/scanner/ScannerOverlay';
-import { ScannerSaleControls } from '@/components/scanner/ScannerSaleControls';
-import { BackIcon } from '@/components/ui/icons';
-import { Routes } from '@/constants/routes';
-import { useProduct } from '@/hooks/useProduct';
-import { useSaleStore } from '@/store/saleStore';
+import { ProductModal } from "@/components/product/ProductModal";
+import { CancelSaleModal } from "@/components/sale/CancelSaleModal";
+import { ScannerOverlay } from "@/components/scanner/ScannerOverlay";
+import { ScannerSaleControls } from "@/components/scanner/ScannerSaleControls";
+import { ScannerToast } from "@/components/scanner/ScannerToast";
+import { BackIcon } from "@/components/ui/icons";
+import { Routes } from "@/constants/routes";
+import { useProduct } from "@/hooks/useProduct";
+import { useSaleStore } from "@/store/saleStore";
+
+const SALE_SCAN_COOLDOWN_MS = 800;
 
 export default function ScannerScreen() {
   const { back, replace } = useRouter();
   const { mode } = useLocalSearchParams<{ mode?: string }>();
-  const isSaleMode = mode === 'sale';
+  const isSaleMode = mode === "sale";
 
   const { hasPermission } = useCameraPermission();
-  const device = useCameraDevice('back');
+  const device = useCameraDevice("back");
 
   const { items, addProduct, clearSale } = useSaleStore();
   const hasItems = items.length > 0;
 
   const [barcode, setBarcode] = useState<string | null>(null);
   const [showCancelModal, setShowCancelModal] = useState(false);
-  const isScanning = useSharedValue(false);
+  const [isScannerActive, setIsScannerActive] = useState(true);
+  const [toastName, setToastName] = useState<string | null>(null);
+  const isHandlingScanRef = useRef(false);
+  const cooldownTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const clearCooldown = useCallback(() => {
+    if (cooldownTimerRef.current) {
+      clearTimeout(cooldownTimerRef.current);
+      cooldownTimerRef.current = null;
+    }
+  }, []);
 
   useFocusEffect(
     useCallback(() => {
       setBarcode(null);
-      isScanning.set(false);
-    }, [isScanning])
+      setIsScannerActive(true);
+      setToastName(null);
+      isHandlingScanRef.current = false;
+      return clearCooldown;
+    }, [clearCooldown]),
   );
 
   const handleBarcode = useCallback((code: string) => {
+    isHandlingScanRef.current = true;
     setBarcode(code);
+    setIsScannerActive(false);
   }, []);
 
-  const barcodeScanner = useBarcodeScanner({ barcodeFormats: ['all-formats'] });
-
-  const frameOutput = useFrameOutput({
-    pixelFormat: 'yuv',
-    onFrame(frame) {
-      'worklet';
-      if (isScanning.get()) {
-        frame.dispose();
-        return;
-      }
-      const barcodes = barcodeScanner.scanCodes(frame);
-      frame.dispose();
-      if (barcodes.length > 0) {
-        const value = barcodes[0].displayValue ?? barcodes[0].rawValue;
-        if (value) {
-          isScanning.set(true);
-          runOnJS(handleBarcode)(value);
-        }
-      }
+  const scannerOutput = useBarcodeScannerOutput({
+    barcodeFormats: ["all-formats"],
+    onBarcodeScanned(barcodes) {
+      if (isHandlingScanRef.current) return;
+      const value = barcodes[0]?.displayValue ?? barcodes[0]?.rawValue;
+      if (!value) return;
+      handleBarcode(value);
+    },
+    onError(error) {
+      console.error("Barcode scanner error:", error);
     },
   });
 
   const { data: product, isLoading, isError } = useProduct(barcode);
 
   const handleCloseModal = useCallback(() => {
+    clearCooldown();
     setBarcode(null);
-    isScanning.set(false);
-  }, [isScanning]);
+    setIsScannerActive(true);
+    setToastName(null);
+    isHandlingScanRef.current = false;
+  }, [clearCooldown]);
 
   useEffect(() => {
     if (!isError) return;
     const timer = setTimeout(() => {
       setBarcode(null);
-      isScanning.set(false);
+      setIsScannerActive(true);
+      isHandlingScanRef.current = false;
     }, 2000);
     return () => clearTimeout(timer);
-  }, [isError, isScanning]);
+  }, [isError]);
 
   useEffect(() => {
-    if (!isSaleMode || !product) return;
+    if (!isSaleMode || !product || !barcode) return;
+    if (product.barcode !== barcode) return;
     addProduct(product);
-    handleCloseModal();
-  }, [product, isSaleMode, addProduct, handleCloseModal]);
+    setToastName(product.name);
+    setBarcode(null);
+    isHandlingScanRef.current = false;
+    cooldownTimerRef.current = setTimeout(() => {
+      setIsScannerActive(true);
+      setToastName(null);
+      cooldownTimerRef.current = null;
+    }, SALE_SCAN_COOLDOWN_MS);
+  }, [product, barcode, isSaleMode, addProduct]);
 
   const handleBackPress = () => {
     if (isSaleMode && hasItems) {
@@ -113,8 +138,8 @@ export default function ScannerScreen() {
     );
   }
 
-  const modalVisible = !isSaleMode && !!product;
-  const errorMessage = isError ? 'Producto no encontrado' : undefined;
+  const modalVisible = !isSaleMode && !!product && product.barcode === barcode;
+  const errorMessage = isError ? "Producto no encontrado" : undefined;
 
   return (
     <View className="flex-1 bg-black">
@@ -122,11 +147,14 @@ export default function ScannerScreen() {
       <Camera
         style={StyleSheet.absoluteFill}
         device={device}
-        isActive={!modalVisible}
-        outputs={[frameOutput]}
+        isActive={isScannerActive && !modalVisible}
+        outputs={[scannerOutput]}
       />
 
-      <ScannerOverlay isLoading={!!isLoading && barcode !== null} errorMessage={errorMessage} />
+      <ScannerOverlay
+        isLoading={!!isLoading && barcode !== null}
+        errorMessage={errorMessage}
+      />
 
       <Pressable
         onPress={handleBackPress}
@@ -139,12 +167,17 @@ export default function ScannerScreen() {
         <ScannerSaleControls
           itemCount={items.length}
           onCancel={() => setShowCancelModal(true)}
-          onReset={handleCloseModal}
           onGoToCart={back}
         />
       ) : null}
 
-      <ProductModal product={product ?? null} visible={modalVisible} onClose={handleCloseModal} />
+      {toastName ? <ScannerToast productName={toastName} /> : null}
+
+      <ProductModal
+        product={product ?? null}
+        visible={modalVisible}
+        onClose={handleCloseModal}
+      />
 
       <CancelSaleModal
         visible={showCancelModal}

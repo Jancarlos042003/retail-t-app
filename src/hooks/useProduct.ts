@@ -11,5 +11,6 @@ export function useProduct(barcode: string | null) {
         .get(`/products/barcode/${barcode}`)
         .then((r) => ProductBarcodeSchema.parse(r.data)),
     enabled: barcode !== null,
+    staleTime: 30_000,
   });
 }
