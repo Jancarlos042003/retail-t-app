@@ -18,9 +18,9 @@ import { useBarcodeScannerOutput } from "react-native-vision-camera-barcode-scan
 import { ProductModal } from "@/components/product/ProductModal";
 import { CancelSaleModal } from "@/components/sale/CancelSaleModal";
 import { ScannerOverlay } from "@/components/scanner/ScannerOverlay";
-import { ScannerSaleControls } from "@/components/scanner/ScannerSaleControls";
+import { ScannerControls } from "@/components/scanner/ScannerControls";
 import { ScannerToast } from "@/components/scanner/ScannerToast";
-import { BackIcon, CartIcon, SearchIcon } from "@/components/ui/icons";
+import { BackIcon } from "@/components/ui/icons";
 import { Routes } from "@/constants/routes";
 import { useProduct } from "@/hooks/useProduct";
 import { useSaleStore } from "@/store/saleStore";
@@ -193,24 +193,13 @@ export default function ScannerScreen() {
         <BackIcon size={22} color="#fff" />
       </Pressable>
 
-      <Pressable
-        onPress={handleToggleMode}
-        className="absolute top-12 right-4 w-10 h-10 bg-black/40 rounded-full items-center justify-center"
-      >
-        {isSaleMode
-          ? <SearchIcon size={20} color="#fff" />
-          : <CartIcon size={20} color="#fff" />
-        }
-      </Pressable>
-
-      {isSaleMode ? (
-        <ScannerSaleControls
-          itemCount={items.length}
-          onCancel={() => setShowCancelModal(true)}
-          onReset={handleCloseModal}
-          onGoToCart={back}
-        />
-      ) : null}
+      <ScannerControls
+        isSaleMode={isSaleMode}
+        itemCount={items.length}
+        onCancel={() => setShowCancelModal(true)}
+        onToggleMode={handleToggleMode}
+        onGoToCart={back}
+      />
 
       {toastName ? <ScannerToast productName={toastName} /> : null}
 
