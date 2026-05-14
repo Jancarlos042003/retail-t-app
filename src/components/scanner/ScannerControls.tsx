@@ -1,7 +1,7 @@
 import { Pressable, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { CartIcon, CloseIcon, SearchIcon } from '@/components/ui/icons';
+import { CartIcon, CloseIcon, PriceTagIcon, SearchIcon } from '@/components/ui/icons';
 
 type ScannerControlsProps = {
   isSaleMode: boolean;
@@ -50,7 +50,7 @@ export function ScannerControls({
       <ControlButton onPress={onToggleMode}>
         {isSaleMode
           ? <SearchIcon size={26} color="#fff" />
-          : <CartIcon size={26} color="#fff" />
+          : <PriceTagIcon size={26} color="#fff" />
         }
       </ControlButton>
 
