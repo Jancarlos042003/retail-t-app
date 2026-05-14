@@ -98,7 +98,7 @@ const ItemSeparator = () => <View className="h-3" />;
 
 export default function NewSaleScreen() {
   const { replace } = useRouter();
-  const { bottom } = useSafeAreaInsets();
+  const { top, bottom } = useSafeAreaInsets();
   const { items, paymentMethod, amountPaid, setPaymentMethod, setAmountPaid, clearSale } =
     useSaleStore();
 
@@ -168,7 +168,7 @@ export default function NewSaleScreen() {
           />
         }
         ListEmptyComponent={SaleListEmpty}
-        contentContainerStyle={{ padding: 20, paddingBottom: 32 }}
+        contentContainerStyle={{ padding: 20, paddingTop: top + 20, paddingBottom: 32 }}
         ItemSeparatorComponent={ItemSeparator}
       />
 
