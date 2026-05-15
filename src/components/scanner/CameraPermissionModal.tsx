@@ -1,4 +1,5 @@
 import { Linking, Modal, Pressable, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 type CameraPermissionModalProps = {
   visible: boolean;
@@ -13,6 +14,7 @@ export function CameraPermissionModal({
   onClose,
   onGrant,
 }: CameraPermissionModalProps) {
+  const { bottom } = useSafeAreaInsets();
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <Pressable
@@ -22,11 +24,12 @@ export function CameraPermissionModal({
       >
         <Pressable
           onPress={() => {}}
-          className="bg-zinc-900 rounded-t-3xl px-6 pt-3 pb-10 gap-4"
+          className="bg-white dark:bg-zinc-900 rounded-t-3xl px-6 pt-3 gap-4"
+          style={{ paddingBottom: Math.max(bottom, 24) }}
         >
-          <View className="w-10 h-1 bg-white/20 rounded-full self-center mb-2" />
-          <Text className="text-white text-xl font-semibold">Permiso de cámara</Text>
-          <Text className="text-zinc-400 text-sm">
+          <View className="w-10 h-1 bg-black/10 dark:bg-white/20 rounded-full self-center mb-2" />
+          <Text className="text-gray-900 dark:text-white text-xl font-semibold">Permiso de cámara</Text>
+          <Text className="text-gray-500 dark:text-zinc-400 text-sm">
             {isDenied
               ? 'El permiso fue denegado. Actívalo desde la configuración del sistema.'
               : 'Para escanear productos necesitamos acceso a tu cámara.'}

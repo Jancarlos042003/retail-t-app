@@ -1,4 +1,5 @@
 import { Modal, Pressable, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 type CancelSaleModalProps = {
   visible: boolean;
@@ -7,6 +8,7 @@ type CancelSaleModalProps = {
 };
 
 export function CancelSaleModal({ visible, onCancel, onConfirm }: CancelSaleModalProps) {
+  const { bottom } = useSafeAreaInsets();
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onCancel}>
       <Pressable
@@ -16,20 +18,21 @@ export function CancelSaleModal({ visible, onCancel, onConfirm }: CancelSaleModa
       >
         <Pressable
           onPress={() => {}}
-          className="bg-zinc-900 rounded-t-3xl px-6 pt-3 pb-10 gap-4"
+          className="bg-white dark:bg-zinc-900 rounded-t-3xl px-6 pt-3 gap-4"
+          style={{ paddingBottom: Math.max(bottom, 24) }}
         >
-          <View className="w-10 h-1 bg-white/20 rounded-full self-center mb-2" />
-          <Text className="text-white text-xl font-semibold">Cancelar venta</Text>
-          <Text className="text-zinc-400 text-sm leading-5">
+          <View className="w-10 h-1 bg-black/10 dark:bg-white/20 rounded-full self-center mb-2" />
+          <Text className="text-gray-900 dark:text-white text-xl font-semibold">Cancelar venta</Text>
+          <Text className="text-gray-500 dark:text-zinc-400 text-sm leading-5">
             Hay productos agregados al carrito. ¿Deseas eliminar la venta?
           </Text>
           <View className="flex-row gap-3 mt-1">
             <Pressable
               onPress={onCancel}
-              className="flex-1 py-4 bg-zinc-800 rounded-2xl items-center"
+              className="flex-1 py-4 bg-gray-100 dark:bg-zinc-800 rounded-2xl items-center"
               style={{ borderCurve: 'continuous' }}
             >
-              <Text className="text-white font-semibold">Cancelar</Text>
+              <Text className="text-gray-900 dark:text-white font-semibold">Cancelar</Text>
             </Pressable>
             <Pressable
               onPress={onConfirm}
