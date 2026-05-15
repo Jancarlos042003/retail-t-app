@@ -1,5 +1,5 @@
 import { Image } from 'expo-image';
-import { Pressable, Text, View, useColorScheme } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 
 import { MinusIcon, PlusIcon, TrashIcon } from '@/components/ui/icons';
 import { formatPrice } from '@/lib/format';
@@ -24,8 +24,6 @@ export function SaleItemCard({
 }: SaleItemCardProps) {
   const changeQuantity = useSaleStore((s) => s.changeQuantity);
   const removeProduct = useSaleStore((s) => s.removeProduct);
-  const colorScheme = useColorScheme();
-  const minusColor = colorScheme === 'dark' ? '#9CA3AF' : '#374151';
 
   return (
     <View
@@ -53,7 +51,7 @@ export function SaleItemCard({
             onPress={() => changeQuantity(productId, -1)}
             className="w-8 h-8 bg-gray-100 dark:bg-zinc-800 rounded-full items-center justify-center"
           >
-            <MinusIcon size={16} color={minusColor} />
+            <MinusIcon size={16} color="#6B7280" />
           </Pressable>
 
           <Text className="font-bold text-gray-900 dark:text-white w-6 text-center">{quantity}</Text>

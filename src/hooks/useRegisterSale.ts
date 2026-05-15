@@ -5,14 +5,9 @@ import { Routes } from '@/constants/routes';
 import api from '@/lib/api';
 import { queryClient } from '@/lib/queryClient';
 import { useSaleStore } from '@/store/saleStore';
+import { SalesTransactionCreateType } from '@/types';
 
-type SalePayload = {
-  payment_method_id: string;
-  total_amount: string;
-  items: Array<{ product_id: string; quantity: number }>;
-};
-
-type SaleMutationVars = SalePayload & {
+type SaleMutationVars = SalesTransactionCreateType & {
   total: number;
   paymentMethodName: string;
 };
@@ -23,7 +18,7 @@ export function useRegisterSale() {
 
   return useMutation({
     mutationFn: ({ payment_method_id, total_amount, items }: SaleMutationVars) =>
-      api.post('/sales/', { payment_method_id, total_amount, items } satisfies SalePayload).then((r) => r.data),
+      api.post('/sales/', { payment_method_id, total_amount, items }).then((r) => r.data),
 
     onSuccess: (_, { total, paymentMethodName }) => {
       setLastSale({ total, paymentMethodName });

@@ -1,5 +1,6 @@
 import { Image } from 'expo-image';
 import { Modal, Pressable, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useSaleStore } from '@/store/saleStore';
 import { ProductBarcodeType } from '@/types';
@@ -13,6 +14,7 @@ type ProductModalProps = {
 
 export function ProductModal({ product, visible, onClose }: ProductModalProps) {
   const { addProduct } = useSaleStore();
+  const { bottom } = useSafeAreaInsets();
 
   const handleAdd = () => {
     if (product) addProduct(product);
@@ -24,14 +26,14 @@ export function ProductModal({ product, visible, onClose }: ProductModalProps) {
   return (
     <Modal
       visible={visible}
-      animationType="slide"
+      animationType="fade"
       transparent
       onRequestClose={onClose}
     >
       <View className="flex-1 justify-end bg-black/50">
         <View
-          className="bg-white dark:bg-zinc-900 rounded-t-3xl px-6 pt-6 pb-10"
-          style={{ borderCurve: 'continuous' }}
+          className="bg-white dark:bg-zinc-900 rounded-t-3xl px-6 pt-6"
+          style={{ borderCurve: 'continuous', paddingBottom: Math.max(bottom, 40) }}
         >
           <View className="items-center mb-5">
             <Image
