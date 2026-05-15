@@ -18,7 +18,7 @@ type SaleMutationVars = SalePayload & {
 };
 
 export function useRegisterSale() {
-  const { push } = useRouter();
+  const { replace } = useRouter();
   const { setLastSale, clearSale } = useSaleStore();
 
   return useMutation({
@@ -29,7 +29,7 @@ export function useRegisterSale() {
       setLastSale({ total, paymentMethodName });
       clearSale();
       queryClient.invalidateQueries({ queryKey: ['product'] });
-      push(Routes.saleSuccess);
+      replace(Routes.saleSuccess);
     },
   });
 }
