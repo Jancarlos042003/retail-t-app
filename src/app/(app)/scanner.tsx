@@ -198,7 +198,7 @@ export default function ScannerScreen() {
         itemCount={items.length}
         onCancel={() => hasItems ? setShowCancelModal(true) : back()}
         onToggleMode={handleToggleMode}
-        onGoToCart={back}
+        onGoToCart={mode === 'sale' ? back : () => replace(Routes.newSale)}
       />
 
       {toastName ? <ScannerToast productName={toastName} /> : null}

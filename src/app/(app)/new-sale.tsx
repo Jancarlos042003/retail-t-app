@@ -1,13 +1,15 @@
 import { useMemo, useState } from 'react';
-import { FlatList, Text, View } from 'react-native';
+import { FlatList, Pressable, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { CancelSaleModal } from '@/components/sale/CancelSaleModal';
 import { PaymentModal } from '@/components/sale/PaymentModal';
 import { SaleActionBar } from '@/components/sale/SaleActionBar';
 import { SaleEmptyState } from '@/components/sale/SaleEmptyState';
 import { SaleItemCard } from '@/components/sale/SaleItemCard';
 import { SaleSummary } from '@/components/sale/SaleSummary';
 import { CameraPermissionModal } from '@/components/scanner/CameraPermissionModal';
+import { TrashIcon } from '@/components/ui/icons';
 import { useCameraScanner } from '@/hooks/useCameraScanner';
 import { useRegisterSale } from '@/hooks/useRegisterSale';
 import { useSaleStore, SaleItem } from '@/store/saleStore';
@@ -28,19 +30,36 @@ const keyExtractor = (item: SaleItem) => item.product.id;
 
 const ItemSeparator = () => <View className="h-3" />;
 
-function SaleListHeader() {
+type SaleListHeaderProps = {
+  hasItems: boolean;
+  onClear: () => void;
+};
+
+function SaleListHeader({ hasItems, onClear }: SaleListHeaderProps) {
   return (
-    <Text className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Nueva Venta</Text>
+    <View className="flex-row items-center justify-between mb-4">
+      <Text className="text-2xl font-bold text-gray-900 dark:text-white">Nueva Venta</Text>
+      {hasItems ? (
+        <Pressable
+          onPress={onClear}
+          className="w-9 h-9 rounded-full items-center justify-center active:opacity-60"
+          hitSlop={8}
+        >
+          <TrashIcon size={20} color="#EF4444" />
+        </Pressable>
+      ) : null}
+    </View>
   );
 }
 
 export default function NewSaleScreen() {
   const { top } = useSafeAreaInsets();
-  const { items } = useSaleStore();
+  const { items, clearSale } = useSaleStore();
 
   const { mutate: registerSale, isPending, error } = useRegisterSale();
 
   const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [showClearModal, setShowClearModal] = useState(false);
 
   const {
     openScanner,
@@ -76,7 +95,9 @@ export default function NewSaleScreen() {
         data={items}
         renderItem={renderItem}
         keyExtractor={keyExtractor}
-        ListHeaderComponent={SaleListHeader}
+        ListHeaderComponent={
+          <SaleListHeader hasItems={hasItems} onClear={() => setShowClearModal(true)} />
+        }
         ListFooterComponent={
           hasItems ? (
             <View className="mt-4 gap-3">
@@ -117,6 +138,15 @@ export default function NewSaleScreen() {
         isDenied={isDenied}
         onClose={() => setShowPermissionModal(false)}
         onGrant={handleGrantPermission}
+      />
+
+      <CancelSaleModal
+        visible={showClearModal}
+        onCancel={() => setShowClearModal(false)}
+        onConfirm={() => {
+          clearSale();
+          setShowClearModal(false);
+        }}
       />
     </View>
   );
