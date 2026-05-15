@@ -173,6 +173,47 @@ La verificación en dispositivo físico es responsabilidad del revisor humano, n
 
 ---
 
+## Convenciones de commits
+
+Formato: Conventional Commits.
+
+```
+<tipo>[scope opcional]: <descripción en inglés>
+```
+
+### Tipos permitidos
+
+| Tipo | Cuándo usarlo |
+|---|---|
+| `feat` | Nueva funcionalidad |
+| `fix` | Corrección de bug |
+| `refactor` | Cambio de código que no agrega funcionalidad ni corrige bug |
+| `style` | Cambios de estilos visuales (NativeWind, layout) |
+| `chore` | Configuración, dependencias, archivos de proyecto |
+| `docs` | Cambios en documentación |
+
+### Scopes del proyecto
+
+`scanner` · `sale` · `product` · `ui` · `store` · `hooks` · `schemas` · `navigation`
+
+### Ejemplos
+
+```
+feat(sale): add button to clear cart
+fix(scanner): fix QR code reading in low light
+refactor(hooks): extract sale logic into useSale
+style(product): adjust spacing in product card
+chore: update expo dependencies
+```
+
+### Reglas
+
+- La descripción va en inglés, en minúscula, sin punto final.
+- Una línea máximo para el título.
+- Si el cambio rompe compatibilidad, agregar `!` después del tipo: `feat!:`.
+
+---
+
 ## Reglas de respuesta esperadas del agente
 
 - Proponer cambios mínimos y correctos.
