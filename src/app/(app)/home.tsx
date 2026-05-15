@@ -1,7 +1,7 @@
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import { Linking, Modal, Pressable, Text, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { useCameraPermission } from "react-native-vision-camera";
 
 import { CartIcon, ScanIcon } from "@/components/ui/icons";
@@ -9,6 +9,7 @@ import { Routes } from "@/constants/routes";
 
 export default function HomeScreen() {
   const { push } = useRouter();
+  const { bottom } = useSafeAreaInsets();
   const { hasPermission, canRequestPermission, requestPermission } =
     useCameraPermission();
   const [showPermissionModal, setShowPermissionModal] = useState(false);
@@ -74,13 +75,14 @@ export default function HomeScreen() {
         >
           <Pressable
             onPress={() => {}}
-            className="bg-zinc-900 rounded-t-3xl px-6 pt-3 pb-10 gap-4"
+            className="bg-white dark:bg-zinc-900 rounded-t-3xl px-6 pt-3 gap-4"
+            style={{ paddingBottom: Math.max(bottom, 24) }}
           >
-            <View className="w-10 h-1 bg-white/20 rounded-full self-center mb-2" />
-            <Text className="text-white text-xl font-semibold">
+            <View className="w-10 h-1 bg-black/10 dark:bg-white/20 rounded-full self-center mb-2" />
+            <Text className="text-gray-900 dark:text-white text-xl font-semibold">
               Permiso de cámara
             </Text>
-            <Text className="text-zinc-400 text-sm">
+            <Text className="text-gray-500 dark:text-zinc-400 text-sm">
               {denied
                 ? "El permiso fue denegado. Actívalo desde la configuración del sistema."
                 : "Para escanear productos necesitamos acceso a tu cámara."}
