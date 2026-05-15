@@ -13,7 +13,11 @@ export function useCameraScanner(mode: ScannerMode = 'search') {
 
   const openScanner = () => {
     if (hasPermission) {
-      push(mode === 'sale' ? `${Routes.scanner}?mode=sale` : Routes.scanner);
+      if (mode === 'sale') {
+        push({ pathname: Routes.scanner, params: { mode: 'sale' } });
+      } else {
+        push(Routes.scanner);
+      }
     } else {
       setShowPermissionModal(true);
     }
@@ -23,7 +27,11 @@ export function useCameraScanner(mode: ScannerMode = 'search') {
     const granted = await requestPermission();
     if (granted) {
       setShowPermissionModal(false);
-      push(mode === 'sale' ? `${Routes.scanner}?mode=sale` : Routes.scanner);
+      if (mode === 'sale') {
+        push({ pathname: Routes.scanner, params: { mode: 'sale' } });
+      } else {
+        push(Routes.scanner);
+      }
     }
   };
 
