@@ -64,12 +64,14 @@ export default function ScannerScreen() {
       setBarcode(null);
       setIsScannerActive(true);
       setToastName(null);
+      // El torch se resetea al entrar en foco (cámara activa) y no en el
+      // cleanup, para evitar cambiar torchMode mientras la sesión se cierra.
+      setTorchOn(false);
       isHandlingScanRef.current = false;
       processingBarcodeRef.current = null;
       lastBarcodeSeenRef.current = 0;
       return () => {
         clearCooldown();
-        setTorchOn(false);
       };
     }, [clearCooldown]),
   );
@@ -196,7 +198,10 @@ export default function ScannerScreen() {
         style={StyleSheet.absoluteFill}
         device={device}
         isActive={isCameraActive}
-        torchMode={isCameraActive && torchOn ? 'on' : 'off'}
+        // No se condiciona a isCameraActive: si torchMode no cambia de valor
+        // cuando isActive pasa a false, VisionCamera no llama setTorchMode
+        // en el lado nativo y se evita la OperationCanceledException de CameraX.
+        torchMode={torchOn ? 'on' : 'off'}
         outputs={[scannerOutput]}
       />
 
@@ -222,7 +227,8 @@ export default function ScannerScreen() {
 
       {device.hasTorch ? (
         <Pressable
-          onPress={() => setTorchOn((prev) => !prev)}
+          // Guard: solo se permite cambiar torchMode cuando la cámara está activa.
+          onPress={() => { if (isCameraActive) setTorchOn((prev) => !prev); }}
           className="absolute top-12 right-4 w-14 h-14 bg-black/50 rounded-full items-center justify-center"
         >
           {torchOn
