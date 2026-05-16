@@ -1,5 +1,6 @@
 import { Image } from 'expo-image';
-import { Pressable, Text, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { Pressable, Text, TextInput, View } from 'react-native';
 
 import { MinusIcon, PlusIcon, TrashIcon } from '@/components/ui/icons';
 import { formatPrice } from '@/lib/format';
@@ -23,7 +24,24 @@ export function SaleItemCard({
   subtotal,
 }: SaleItemCardProps) {
   const changeQuantity = useSaleStore((s) => s.changeQuantity);
+  const setQuantity = useSaleStore((s) => s.setQuantity);
   const removeProduct = useSaleStore((s) => s.removeProduct);
+
+  const [isEditing, setIsEditing] = useState(false);
+  const [inputValue, setInputValue] = useState(String(quantity));
+
+  // sincroniza el input cuando la cantidad cambia externamente (botones +/-)
+  useEffect(() => {
+    if (!isEditing) setInputValue(String(quantity));
+  }, [quantity, isEditing]);
+
+  const handleConfirm = () => {
+    const parsed = parseInt(inputValue, 10);
+    if (!isNaN(parsed) && parsed >= 1) {
+      setQuantity(productId, parsed);
+    }
+    setIsEditing(false);
+  };
 
   return (
     <View
@@ -54,7 +72,33 @@ export function SaleItemCard({
             <MinusIcon size={16} color="#6B7280" />
           </Pressable>
 
-          <Text className="font-bold text-gray-900 dark:text-white w-6 text-center">{quantity}</Text>
+          {isEditing ? (
+            <TextInput
+              value={inputValue}
+              onChangeText={setInputValue}
+              onBlur={handleConfirm}
+              onSubmitEditing={handleConfirm}
+              keyboardType="number-pad"
+              returnKeyType="done"
+              selectTextOnFocus
+              autoFocus
+              className="font-bold text-gray-900 dark:text-white text-center"
+              style={{ width: 40, borderBottomWidth: 1.5, borderBottomColor: '#3B82F6', paddingVertical: 2 }}
+              underlineColorAndroid="transparent"
+            />
+          ) : (
+            <Pressable
+              onPress={() => {
+                setInputValue(String(quantity));
+                setIsEditing(true);
+              }}
+              hitSlop={8}
+            >
+              <Text className="font-bold text-gray-900 dark:text-white w-6 text-center">
+                {quantity}
+              </Text>
+            </Pressable>
+          )}
 
           <Pressable
             onPress={() => changeQuantity(productId, 1)}
