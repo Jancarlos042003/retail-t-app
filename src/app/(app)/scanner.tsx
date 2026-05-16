@@ -207,7 +207,7 @@ export default function ScannerScreen() {
 
       <Pressable
         onPress={handleBackPress}
-        className="absolute top-12 left-4 w-10 h-10 bg-black/40 rounded-full items-center justify-center"
+        className="absolute top-12 left-4 w-14 h-14 bg-black/50 rounded-full items-center justify-center"
       >
         <BackIcon size={26} color="#fff" />
       </Pressable>
@@ -215,7 +215,7 @@ export default function ScannerScreen() {
       {device.hasTorch ? (
         <Pressable
           onPress={() => setTorchOn((prev) => !prev)}
-          className="absolute top-12 right-4 w-10 h-10 bg-black/40 rounded-full items-center justify-center"
+          className="absolute top-12 right-4 w-14 h-14 bg-black/50 rounded-full items-center justify-center"
         >
           {torchOn
             ? <FlashlightIcon size={26} color="#FCD34D" />
