@@ -6,6 +6,7 @@ import {
   Pressable,
   StyleSheet,
   Text,
+  Vibration,
   View,
 } from "react-native";
 import {
@@ -123,6 +124,7 @@ export default function ScannerScreen() {
 
   useEffect(() => {
     if (!isError) return;
+    Vibration.vibrate([0, 40, 60, 40]);
     const timer = setTimeout(() => {
       setBarcode(null);
       setIsScannerActive(true);
@@ -137,6 +139,7 @@ export default function ScannerScreen() {
     if (!isSaleMode || !product || !barcode) return;
     if (product.barcode !== barcode) return;
     addProduct(product);
+    Vibration.vibrate(50);
     setToastName(product.name);
     setBarcode(null);
     cooldownTimerRef.current = setTimeout(() => {
