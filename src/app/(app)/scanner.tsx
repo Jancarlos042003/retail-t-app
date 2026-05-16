@@ -20,7 +20,7 @@ import { CancelSaleModal } from "@/components/sale/CancelSaleModal";
 import { ScannerOverlay } from "@/components/scanner/ScannerOverlay";
 import { ScannerControls } from "@/components/scanner/ScannerControls";
 import { ScannerToast } from "@/components/scanner/ScannerToast";
-import { BackIcon } from "@/components/ui/icons";
+import { BackIcon, FlashlightIcon, FlashlightOffIcon } from "@/components/ui/icons";
 import { Routes } from "@/constants/routes";
 import { useProduct } from "@/hooks/useProduct";
 import { useSaleStore } from "@/store/saleStore";
@@ -44,6 +44,7 @@ export default function ScannerScreen() {
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [isScannerActive, setIsScannerActive] = useState(true);
   const [toastName, setToastName] = useState<string | null>(null);
+  const [torchOn, setTorchOn] = useState(false);
   const isHandlingScanRef = useRef(false);
   const processingBarcodeRef = useRef<string | null>(null);
   const lastBarcodeSeenRef = useRef<number>(0);
@@ -64,7 +65,10 @@ export default function ScannerScreen() {
       isHandlingScanRef.current = false;
       processingBarcodeRef.current = null;
       lastBarcodeSeenRef.current = 0;
-      return clearCooldown;
+      return () => {
+        clearCooldown();
+        setTorchOn(false);
+      };
     }, [clearCooldown]),
   );
 
@@ -179,6 +183,7 @@ export default function ScannerScreen() {
         style={StyleSheet.absoluteFill}
         device={device}
         isActive={isSaleMode ? true : isScannerActive && !modalVisible}
+        torchMode={torchOn ? 'on' : 'off'}
         outputs={[scannerOutput]}
       />
 
@@ -193,6 +198,18 @@ export default function ScannerScreen() {
       >
         <BackIcon size={22} color="#fff" />
       </Pressable>
+
+      {device.hasTorch ? (
+        <Pressable
+          onPress={() => setTorchOn((prev) => !prev)}
+          className="absolute top-12 right-4 w-10 h-10 bg-black/40 rounded-full items-center justify-center"
+        >
+          {torchOn
+            ? <FlashlightIcon size={20} color="#FCD34D" />
+            : <FlashlightOffIcon size={20} color="#fff" />
+          }
+        </Pressable>
+      ) : null}
 
       <ScannerControls
         isSaleMode={isSaleMode}
