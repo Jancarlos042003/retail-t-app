@@ -1,6 +1,6 @@
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Pressable,
@@ -38,6 +38,7 @@ export default function ScannerScreen() {
 
   const { items, addProduct, clearSale } = useSaleStore();
   const hasItems = items.length > 0;
+  const total = useMemo(() => items.reduce((acc, item) => acc + item.subtotal, 0), [items]);
 
   const [barcode, setBarcode] = useState<string | null>(null);
   const [showCancelModal, setShowCancelModal] = useState(false);
@@ -196,6 +197,7 @@ export default function ScannerScreen() {
       <ScannerControls
         isSaleMode={isSaleMode}
         itemCount={items.length}
+        total={total}
         onCancel={() => hasItems ? setShowCancelModal(true) : back()}
         onToggleMode={handleToggleMode}
         onGoToCart={mode === 'sale' ? back : () => replace(Routes.newSale)}
