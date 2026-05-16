@@ -52,3 +52,11 @@ export function SearchIcon({ size = 24, color = '#000' }: IconProps) {
 export function PriceTagIcon({ size = 24, color = '#000' }: IconProps) {
   return <Ionicons name="pricetag-outline" size={size} color={color} />;
 }
+
+export function FlashlightIcon({ size = 24, color = '#000' }: IconProps) {
+  return <Ionicons name="flashlight" size={size} color={color} />;
+}
+
+export function FlashlightOffIcon({ size = 24, color = '#000' }: IconProps) {
+  return <Ionicons name="flashlight-outline" size={size} color={color} />;
+}

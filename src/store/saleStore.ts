@@ -22,6 +22,7 @@ interface SaleState {
   addProduct: (product: ProductBarcodeType) => void;
   removeProduct: (productId: string) => void;
   changeQuantity: (productId: string, delta: number) => void;
+  setQuantity: (productId: string, quantity: number) => void;
   setPaymentMethod: (method: PaymentMethodType) => void;
   setAmountPaid: (amount: number) => void;
   setLastSale: (data: LastSale) => void;
@@ -72,6 +73,15 @@ export const useSaleStore = create<SaleState>((set) => ({
         if (item.product.id !== productId) return item;
         const newQty = Math.max(1, item.quantity + delta);
         return { ...item, quantity: newQty, subtotal: getSubtotal(item.product, newQty) };
+      }),
+    })),
+
+  setQuantity: (productId, quantity) =>
+    set((state) => ({
+      items: state.items.map((item) => {
+        if (item.product.id !== productId) return item;
+        const qty = Math.max(1, quantity);
+        return { ...item, quantity: qty, subtotal: getSubtotal(item.product, qty) };
       }),
     })),
 
