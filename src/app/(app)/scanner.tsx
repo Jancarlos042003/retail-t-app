@@ -212,6 +212,14 @@ export default function ScannerScreen() {
         <BackIcon size={26} color="#fff" />
       </Pressable>
 
+      <View className="absolute top-12 left-0 right-0 items-center justify-center h-14 pointer-events-none">
+        <View className="bg-black/50 rounded-full px-5 py-2">
+          <Text className="text-white text-xs font-semibold tracking-widest uppercase">
+            {isSaleMode ? 'Venta' : 'Búsqueda'}
+          </Text>
+        </View>
+      </View>
+
       {device.hasTorch ? (
         <Pressable
           onPress={() => setTorchOn((prev) => !prev)}
