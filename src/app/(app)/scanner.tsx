@@ -186,8 +186,8 @@ export default function ScannerScreen() {
   }
 
   const modalVisible = !isSaleMode && !!product && product.barcode === barcode;
-  const errorMessage = isError ? "Producto no encontrado" : undefined;
   const isCameraActive = isSaleMode ? true : isScannerActive && !modalVisible;
+  const showHint = !isSaleMode || total === 0;
 
   return (
     <View className="flex-1 bg-black">
@@ -202,7 +202,7 @@ export default function ScannerScreen() {
 
       <ScannerOverlay
         isLoading={!!isLoading && barcode !== null}
-        errorMessage={errorMessage}
+        showHint={showHint}
       />
 
       <Pressable
@@ -233,7 +233,8 @@ export default function ScannerScreen() {
         onGoToCart={mode === 'sale' ? back : () => replace(Routes.newSale)}
       />
 
-      {toastName ? <ScannerToast productName={toastName} /> : null}
+      {toastName ? <ScannerToast variant="success" message={toastName} /> : null}
+      {isError ? <ScannerToast variant="error" message="Producto no encontrado" /> : null}
 
       <ProductModal
         product={product ?? null}
