@@ -4,7 +4,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import * as Haptics from 'expo-haptics';
 import {
   ActivityIndicator,
-  Platform,
   Pressable,
   StyleSheet,
   Text,
@@ -143,11 +142,8 @@ export default function ScannerScreen() {
 
   useEffect(() => {
     if (!isError) return;
-    if (Platform.OS === 'android') {
-      Haptics.performAndroidHapticsAsync(Haptics.AndroidHaptics.Reject);
-    } else {
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
-    }
+    // try/catch: el haptics es opcional; falla en emuladores y dispositivos sin motor.
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error).catch(() => {});
     const timer = setTimeout(() => {
       setBarcode(null);
       setIsScannerActive(true);
@@ -162,11 +158,7 @@ export default function ScannerScreen() {
     if (!isSaleMode || !product || !barcode) return;
     if (product.barcode !== barcode) return;
     addProduct(product);
-    if (Platform.OS === 'android') {
-      Haptics.performAndroidHapticsAsync(Haptics.AndroidHaptics.Confirm);
-    } else {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    }
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
     setToastName(product.name);
     setBarcode(null);
     cooldownTimerRef.current = setTimeout(() => {
