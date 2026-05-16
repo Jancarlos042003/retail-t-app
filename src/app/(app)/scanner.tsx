@@ -1,12 +1,13 @@
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import * as Haptics from 'expo-haptics';
 import {
   ActivityIndicator,
+  Platform,
   Pressable,
   StyleSheet,
   Text,
-  Vibration,
   View,
 } from "react-native";
 import {
@@ -124,7 +125,11 @@ export default function ScannerScreen() {
 
   useEffect(() => {
     if (!isError) return;
-    Vibration.vibrate([0, 40, 60, 40]);
+    if (Platform.OS === 'android') {
+      Haptics.performAndroidHapticsAsync(Haptics.AndroidHaptics.Reject);
+    } else {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+    }
     const timer = setTimeout(() => {
       setBarcode(null);
       setIsScannerActive(true);
@@ -139,7 +144,11 @@ export default function ScannerScreen() {
     if (!isSaleMode || !product || !barcode) return;
     if (product.barcode !== barcode) return;
     addProduct(product);
-    Vibration.vibrate(50);
+    if (Platform.OS === 'android') {
+      Haptics.performAndroidHapticsAsync(Haptics.AndroidHaptics.Confirm);
+    } else {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }
     setToastName(product.name);
     setBarcode(null);
     cooldownTimerRef.current = setTimeout(() => {
