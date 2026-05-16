@@ -178,6 +178,7 @@ export default function ScannerScreen() {
 
   const modalVisible = !isSaleMode && !!product && product.barcode === barcode;
   const errorMessage = isError ? "Producto no encontrado" : undefined;
+  const isCameraActive = isSaleMode ? true : isScannerActive && !modalVisible;
 
   return (
     <View className="flex-1 bg-black">
@@ -185,8 +186,8 @@ export default function ScannerScreen() {
       <Camera
         style={StyleSheet.absoluteFill}
         device={device}
-        isActive={isSaleMode ? true : isScannerActive && !modalVisible}
-        torchMode={torchOn ? 'on' : 'off'}
+        isActive={isCameraActive}
+        torchMode={isCameraActive && torchOn ? 'on' : 'off'}
         outputs={[scannerOutput]}
       />
 
