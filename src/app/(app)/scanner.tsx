@@ -209,7 +209,7 @@ export default function ScannerScreen() {
         onPress={handleBackPress}
         className="absolute top-12 left-4 w-10 h-10 bg-black/40 rounded-full items-center justify-center"
       >
-        <BackIcon size={22} color="#fff" />
+        <BackIcon size={26} color="#fff" />
       </Pressable>
 
       {device.hasTorch ? (
@@ -218,8 +218,8 @@ export default function ScannerScreen() {
           className="absolute top-12 right-4 w-10 h-10 bg-black/40 rounded-full items-center justify-center"
         >
           {torchOn
-            ? <FlashlightIcon size={20} color="#FCD34D" />
-            : <FlashlightOffIcon size={20} color="#fff" />
+            ? <FlashlightIcon size={26} color="#FCD34D" />
+            : <FlashlightOffIcon size={26} color="#fff" />
           }
         </Pressable>
       ) : null}

@@ -21,7 +21,7 @@ export function ScannerOverlay({ isLoading, errorMessage }: ScannerOverlayProps)
 
       <View
         className="absolute left-4 right-4 bg-black/55 rounded-2xl px-4 py-3 flex-row items-center gap-3"
-        style={{ bottom: bottom + 100, borderCurve: 'continuous' }}
+        style={{ bottom: bottom + 160, borderCurve: 'continuous' }}
       >
         {errorMessage ? (
           <>
