@@ -12,6 +12,7 @@ import {
 } from "react-native";
 import {
   Camera,
+  type CameraRef,
   useCameraDevice,
   useCameraPermission,
 } from "react-native-vision-camera";
@@ -47,6 +48,9 @@ export default function ScannerScreen() {
   const [isScannerActive, setIsScannerActive] = useState(true);
   const [toastName, setToastName] = useState<string | null>(null);
   const [torchOn, setTorchOn] = useState(false);
+  const cameraRef = useRef<CameraRef>(null);
+  // Ref espejo para leer torchOn en handleCameraStarted sin closures desactualizadas.
+  const torchOnRef = useRef(false);
   const isHandlingScanRef = useRef(false);
   const processingBarcodeRef = useRef<string | null>(null);
   const lastBarcodeSeenRef = useRef<number>(0);
@@ -56,6 +60,18 @@ export default function ScannerScreen() {
     if (cooldownTimerRef.current) {
       clearTimeout(cooldownTimerRef.current);
       cooldownTimerRef.current = null;
+    }
+  }, []);
+
+  useEffect(() => {
+    torchOnRef.current = torchOn;
+  }, [torchOn]);
+
+  // onStarted garantiza estado ACTIVE en CameraX: momento seguro para setTorchMode.
+  // Restaura el torch si estaba activo antes de que la sesión anterior se cerrara.
+  const handleCameraStarted = useCallback(() => {
+    if (torchOnRef.current) {
+      cameraRef.current?.controller?.setTorchMode('on');
     }
   }, []);
 
@@ -194,14 +210,17 @@ export default function ScannerScreen() {
   return (
     <View className="flex-1 bg-black">
       <StatusBar style="light" />
+      {/*
+       * Sin prop torchMode: VisionCamera v5 llama setTorchMode al cambiar el
+       * controller (inicio de sesión), antes de que CameraX esté en ACTIVE →
+       * OperationCanceledException. El torch se controla imperativamente via cameraRef.
+       */}
       <Camera
+        ref={cameraRef}
         style={StyleSheet.absoluteFill}
         device={device}
         isActive={isCameraActive}
-        // No se condiciona a isCameraActive: si torchMode no cambia de valor
-        // cuando isActive pasa a false, VisionCamera no llama setTorchMode
-        // en el lado nativo y se evita la OperationCanceledException de CameraX.
-        torchMode={torchOn ? 'on' : 'off'}
+        onStarted={handleCameraStarted}
         outputs={[scannerOutput]}
       />
 
@@ -227,8 +246,13 @@ export default function ScannerScreen() {
 
       {device.hasTorch ? (
         <Pressable
-          // Guard: solo se permite cambiar torchMode cuando la cámara está activa.
-          onPress={() => { if (isCameraActive) setTorchOn((prev) => !prev); }}
+          onPress={() => {
+            if (!isCameraActive) return;
+            const next = !torchOn;
+            setTorchOn(next);
+            // Control imperativo: cámara confirmada activa, no hay race condition.
+            cameraRef.current?.controller?.setTorchMode(next ? 'on' : 'off');
+          }}
           className="absolute top-12 right-4 w-14 h-14 bg-black/50 rounded-full items-center justify-center"
         >
           {torchOn
